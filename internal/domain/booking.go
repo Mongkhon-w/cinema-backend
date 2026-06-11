@@ -15,6 +15,6 @@ type Booking struct {
 }
 
 type BookingUsecase interface {
-	SelectSeat(ctx context.Context, userID, showID, seatNo string) error
-	ConfirmPayment(ctx context.Context, userID, showID, seatNo string) error
+	SelectSeat(ctx context.Context, userID, userEmail, showID, seatNo string) error
+	ConfirmPayment(ctx context.Context, userID, userEmail, showID, seatNo string) error
 }
