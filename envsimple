@@ -1,0 +1,18 @@
+PORT=8080
+ENV=development
+
+MONGO_URI=mongodb://root:example@mongodb:27017/cinema?authSource=admin
+REDIS_ADDR=redis:6379
+REDIS_PASSWORD=
+
+GOOGLE_CLIENT_ID=8xxxxxxxxxxxxxxxxxxx (ของจริงจะยาว)
+GOOGLE_CLIENT_SECRET=GXXXX-XXXXXXXX (ของจริงจะยาว)
+GOOGLE_REDIRECT_URL=http://localhost:8080/api/v1/auth/google/callback
+FRONTEND_URL=http://localhost:3000
+ADMIN_EMAILS=admin@gmail.com (สามารถเปลี่ยนได้) รหัสใส่อะไรก็ได้ เพราะโยนภาระความปลอดภัย (เช่น 2FA หรือการโดนแฮ็กรหัสผ่าน) ไปให้ Google เป็นคนจัดการทั้งหมด
+
+JWT_ACCESS_SECRET=your_super_secret_access_key_123!
+JWT_REFRESH_SECRET=your_super_secret_refresh_key_456!
+
+LINE_CHANNEL_ACCESS_TOKEN=bxxxxxxxxx (ของจริงจะยาวๆ)
+LINE_TARGET_USER_ID=xxxxxxxxx (ของจริงจะยาว)
