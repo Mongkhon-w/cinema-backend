@@ -137,9 +137,9 @@ docker compose up -d --build
 1. **ผ่าน Frontend UI:** เปิดเบราว์เซอร์ 2 หน้าจอ จำลองผู้ใช้ 2 คน และกดแย่งจองที่นั่งเดียวกัน
 2. **ผ่าน API (Postman / cURL):** ยิง API `/seats/lock` พร้อมกัน 2 ครั้งเพื่อทดสอบ Distributed Lock
 
-การทำ **Mock Login (สำหรับดึง Token ไปยิง API)**
+การ ** Login (สำหรับดึง Token ไปยิง API)**
 เนื่องจากระบบมีการป้องกัน หากจะใช้ Mock Login สำหรับ User ธรรมดา จะต้องทำการ **สมัครสมาชิก (Register)** ในระบบผ่าน UI ก่อน 
-- ไปที่: `http://localhost:8080/api/v1/auth/mock-choice` เพื่อกดปุ่มจำลองการล็อกอินบนเบราว์เซอร์
+- ไปที่: `http://localhost:3000/register` เพื่อสมัครสมาชิก (Register) ล็อกอินบนเบราว์เซอร์
 
 ---
 
