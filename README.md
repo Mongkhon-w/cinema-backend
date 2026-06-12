@@ -128,12 +128,12 @@ docker compose up -d --build
 ## 8. วิธีการทดสอบ
 
 สามารถทดสอบได้ 2 ทาง:
-1. **ผ่าน Frontend UI:** เปิดเบราว์เซอร์ 2 หน้าจอ จำลองผู้ใช้ 2 คน (ใช้ Mock Auth) และกดแย่งจองที่นั่งเดียวกัน
+1. **ผ่าน Frontend UI:** เปิดเบราว์เซอร์ 2 หน้าจอ จำลองผู้ใช้ 2 คน และกดแย่งจองที่นั่งเดียวกัน
 2. **ผ่าน API (Postman / cURL):** ยิง API `/seats/lock` พร้อมกัน 2 ครั้งเพื่อทดสอบ Distributed Lock
 
-การทำ **Mock Login (สำหรับ Testing)**
-- ไปที่: `http://localhost:8080/api/v1/auth/mock-choice`
-- เลือกล็อกอินด้วยบัญชีจำลอง ระบบจะ Generate JWT Token ให้เพื่อนำไปใช้ใน Postman
+การทำ **Mock Login (สำหรับดึง Token ไปยิง API)**
+เนื่องจากระบบมีการป้องกัน หากจะใช้ Mock Login สำหรับ User ธรรมดา จะต้องทำการ **สมัครสมาชิก (Register)** ในระบบผ่าน UI ก่อน 
+- ไปที่: `http://localhost:8080/api/v1/auth/mock-choice` เพื่อกดปุ่มจำลองการล็อกอินบนเบราว์เซอร์
 
 ---
 
@@ -149,29 +149,56 @@ docker compose up -d --build
 
 ---
 
-## 10. วิธีการยิง API ด้วย Postman Collection
+## 10. วิธีการยิง API ด้วย Postman Collection / cURL
 
-1. นำ Token ฝั่งผู้ใช้ ไปใส่ใน Postman แท็บ **Authorization -> Bearer Token**
-2. ตั้งค่า Body เป็น JSON Format
+เพื่อที่จะยิง API การจองที่นั่งได้ จำเป็นต้องแนบ JWT Token ใน Header เพื่อยืนยันตัวตนเสมอ
+
+### Step 1: ขอ Access Token
+ยิง API ไปที่ Mock Login ด้วย Method **GET** (ไม่ต้องใส่ Body แต่ให้แนบไปกับ URL แทน)
+
+**URL (Query Parameters):**
+```text
+http://localhost:8080/api/v1/auth/mock?email=ผู้ใช้@gmail.com&password=รหัสผ่านของผู้ใช้
+
+**cURL:**
+```bash
+curl -X GET "http://localhost:8080/api/v1/auth/mock?email=ผู้ใช้@gmail.com&password=ผู้ใช้"
+```
+*(Copy ข้อความยาวๆ ในฟิลด์ `"access_token"` เก็บไว้)*
+
+### Step 2: ยิง API ล็อกที่นั่งและจ่ายเงิน
+นำ `access_token` ที่ได้ไปใส่ใน **Header** หรือถ้าใช้ Postman ให้นำไปใส่ในแท็บ **Authorization -> Bearer Token**
 
 **API 1: จอง/ล็อกที่นั่ง (Lock Seat)**
 - **Method:** `POST`
 - **URL:** `http://localhost:8080/api/v1/seats/lock`
-- **Body:**
+- **Headers:** `Authorization: Bearer <access_token>`
+- **Body (JSON):**
   ```json
   {
       "show_id": "spider-man",
       "seat_no": "A1"
   }
   ```
+ผลคาดหวัง: "message": "Seat successfully locked for 5 minutes"
+
+**cURL Example:**
+```bash
+curl -X POST "http://localhost:8080/api/v1/seats/lock" \
+     -H "Authorization: Bearer <access_token>" \
+     -H "Content-Type: application/json" \
+     -d '{"show_id": "spider-man", "seat_no": "A1"}'
+```
 
 **API 2: ยืนยันการชำระเงิน (Confirm Payment)**
 - **Method:** `POST`
 - **URL:** `http://localhost:8080/api/v1/seats/confirm`
-- **Body:**
+- **Headers:** `Authorization: Bearer <access_token>`
+- **Body (JSON):**
   ```json
   {
       "show_id": "spider-man",
       "seat_no": "A1"
   }
   ```
+ ผลคาดหวัง: "message": "Payment confirmed and booking completed"
