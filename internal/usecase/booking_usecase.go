@@ -81,7 +81,28 @@ func (b *bookingUsecase) ConfirmPayment(ctx context.Context, userID, userEmail, 
 	lineMsg := fmt.Sprintf("\n🎟️ จองที่นั่งสำเร็จ!\nที่นั่ง: %s\nโรงหนัง: %s\nผู้ใช้: %s", seatNo, showID, userID)
 	go b.lineNotify.SendNotification(lineMsg)
 
+	// ตั้งเวลาคืนที่นั่งหลังจาก 20 นาที (เพื่อไม่ให้ค้างถาวรตามที่ผู้ใช้ร้องขอ)
+	go b.handleBookedTimeout(showID, seatNo, userID)
+
 	return nil
+}
+
+func (b *bookingUsecase) handleBookedTimeout(showID, seatNo, userID string) {
+	time.Sleep(20 * time.Minute)
+	ctx := context.Background()
+	seat, err := b.seatRepo.GetSeat(ctx, showID, seatNo)
+	if err != nil || seat == nil {
+		return
+	}
+	if seat.Status != domain.SeatBooked || seat.UserID != userID {
+		return
+	}
+	_ = b.seatRepo.UpdateSeatStatus(ctx, showID, seatNo, domain.SeatAvailable, "", "")
+	_ = b.pubSubRepo.PublishAuditLog(ctx, &domain.AuditLog{
+		Event:     "SEAT_RELEASED",
+		Details:   fmt.Sprintf("Booked seat %s for show %s has expired after 20 mins", seatNo, showID),
+		Timestamp: time.Now(),
+	})
 }
 
 func (b *bookingUsecase) handleBookingTimeout(showID, seatNo, userID string) {
