@@ -1,11 +1,15 @@
-cat > cinema-backend/.gitignore << 'EOF'
 # Keep environment variables out of version control
 .env
+.env.*
+!.env.example
 
 # Go build output
 /bin/
+tmp_bin/
 *.exe
+*.exe~
 *.out
+*.test
 
 # Dependency directories
 vendor/
@@ -13,5 +17,4 @@ vendor/
 # IDE
 .idea/
 .vscode/
-
-EOF
+.DS_Store
